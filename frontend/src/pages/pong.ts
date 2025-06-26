@@ -18,7 +18,7 @@ interface GameState {
   // Paddles
   leftPaddle: { x: number; y: number; score: number };
   rightPaddle: { x: number; y: number; score: number };
-  // Ball
+  // Balla
   ball: { x: number; y: number; dx: number; dy: number; speed: number };
   // Game control
   isRunning: boolean;
@@ -515,9 +515,47 @@ showMessage(i18next.t('GAME_WIN_MESSAGE', { winner }));
 
 
   playSound('win');
+  // ✅ Save 1v1 match history to backend if not a tournament game
 
   const tournamentMatchRaw = localStorage.getItem('tournamentMatch');
   const tournamentMatch = tournamentMatchRaw ? JSON.parse(tournamentMatchRaw) : null;
+  async function saveMatchToBackend(matchData: any) {
+  try {
+    console.log("🎯 Sending match data:", matchData);
+
+    const res = await fetch('https://localhost:3000/api/matches', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(matchData)
+    });
+
+    const contentType = res.headers.get('Content-Type') || '';
+    let data = null;
+    if (contentType.includes('application/json')) {
+      data = await res.json();
+    }
+
+    if (!res.ok) {
+      throw new Error(data?.error || `Server error: ${res.status}`);
+    }
+
+    console.log("✅ Match saved:", data);
+  } catch (err) {
+    console.error("❌ Failed to save match:", err);
+  }
+}
+
+  if (!tournamentMatch) {
+  const matchData = {
+    player1: gameData?.player1 || "Player 1",
+    player2: gameData?.player2 || "Player 2",
+    winner,
+    score1: gameState.leftPaddle.score,
+    score2: gameState.rightPaddle.score
+  };
+
+  saveMatchToBackend(matchData); // ✅ call async function
+}
 
   // Only handle tournament logic if this is actually a tournament match
   if (tournamentMatch && tournamentMatch.matchId && tournamentMatch.round) {
@@ -642,7 +680,7 @@ function handleKeyDown(e: KeyboardEvent) {
   }
   
   // P key to pause
-  if (e.key.toLowerCase() === 'p' && gameState.gameStarted && gameState.isRunning) {
+  if(typeof e.key == "string" &&  e.key.toLowerCase() === 'p' && gameState.gameStarted && gameState.isRunning) {
     handlePauseGame();
   }
 }

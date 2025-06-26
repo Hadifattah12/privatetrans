@@ -53,6 +53,9 @@ fastify.get('/', async (request, reply) => {
   `);
 });
 
+fastify.register(require('./routes/match'));
+
+
 fastify.register(friendRoutes, { prefix: '/api' });
 
 const onlineUsers = new Set();

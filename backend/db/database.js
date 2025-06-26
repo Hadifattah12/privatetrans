@@ -77,6 +77,22 @@ const db = new sqlite3.Database(DBSOURCE, (err) => {
       });
     }
   });
+    // Create match_history table
+  db.run(`CREATE TABLE IF NOT EXISTS match_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    player1 TEXT NOT NULL,
+    player2 TEXT NOT NULL,
+    winner TEXT NOT NULL,
+    score1 INTEGER NOT NULL,
+    score2 INTEGER NOT NULL,
+    date TEXT NOT NULL
+  )`, (err) => {
+    if (err) {
+      console.error('Error creating match_history table:', err);
+    } else {
+      console.log('Match history table ready');
+    }
+  });
 
   }
 });

@@ -144,8 +144,6 @@ else {
   }
 });
 
-
-
   // Load friends with remove functionality
   async function loadFriends() {
     try {
@@ -364,7 +362,82 @@ async function fetchAndSet2FAStatus() {
     }
   }
 
-  await loadPendingRequests();
+   async function loadMatchHistory() {
+  const userData = localStorage.getItem('user');
+  const user = userData ? JSON.parse(userData) : null;
+  if (!user) return;
 
+  try {
+    const res = await fetch(`https://localhost:3000/api/matches/${encodeURIComponent(user.name)}`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    });
+    const matches = await res.json();
+
+    const list = container.querySelector('#matchHistoryList') as HTMLUListElement;
+    list.innerHTML = '';
+
+    if (matches.length === 0) {
+      list.innerHTML = `<li>No match history yet.</li>`;
+      return;
+    }
+
+    matches.forEach((match: any) => {
+      const isWinner = match.winner === user.name;
+      const opponent = match.player1 === user.name ? match.player2 : match.player1;
+
+      const li = document.createElement('li');
+      li.className = 'match-item';
+      li.innerHTML = `
+        <strong>${new Date(match.date).toLocaleString()}</strong>
+        vs <span class="opponent">${opponent}</span> – 
+        <span class="${isWinner ? 'win' : 'loss'}">
+          ${isWinner ? '🏆 Win' : '❌ Loss'}
+        </span> 
+        (${match.score1} - ${match.score2})
+      `;
+      list.appendChild(li);
+    });
+  } catch (err) {
+    console.error('Failed to load match history:', err);
+  }
+}
+    async function fetchAndDisplayStatsFromHistory(username: string) {
+  try {
+    const res = await fetch(`https://localhost:3000/api/matches/${encodeURIComponent(username)}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+
+    const matches = await res.json();
+    if (!Array.isArray(matches)) throw new Error('Invalid match history response');
+
+    let wins = 0;
+    let losses = 0;
+
+    matches.forEach((match: any) => {
+      if (match.winner === username) wins++;
+      else if (match.player1 === username || match.player2 === username) losses++;
+    });
+
+    const winsEl = document.getElementById('wins');
+const lossesEl = document.getElementById('losses');
+
+    if (winsEl && lossesEl) {
+      winsEl.textContent = wins.toString();
+      lossesEl.textContent = losses.toString();
+    } else {
+      console.warn('❌ Stats elements not found in DOM');
+    }
+
+  } catch (err) {
+    console.error('Error loading stats from history:', err);
+  }
+}
+
+  await loadPendingRequests();
+  await loadMatchHistory();
+
+  setTimeout(() => fetchAndDisplayStatsFromHistory(user.name), 0); 
   return container;
 }
