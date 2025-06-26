@@ -1,0 +1,205 @@
+.home-wrapper {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #1f2937;
+  background:url(../photo/back.png);
+    background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+}
+
+.home-title{
+  color: white;
+}
+
+.home-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+}
+
+.home-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.header-left h1 {
+  color: white;
+  font-size: 2rem;
+  margin: 0;
+}
+
+.welcome-msg {
+  color: white;
+  font-size: 26px;
+  margin:auto;
+  margin-bottom: 20px;
+}
+
+.header-right {
+  display: flex;
+  gap: 1rem;
+}
+
+.profile-btn,
+.logout-btn {
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.profile-btn {
+  background-color: #4F46E5;
+  color: white;
+}
+
+.logout-btn {
+  background-color: #EF4444;
+  color: white;
+}
+
+.home-main {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.game-mode-cards {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
+
+.game-card {
+background-color: rgb(192 144 15 / 19%);
+  backdrop-filter: blur(10px); /* glass effect */
+  width: 361px;
+  min-height: 341px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25); /* darker shadow for visibility */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: center;
+  border-radius: 20px;
+  padding: 2rem;
+  transition: transform 0.2s;
+}
+
+
+.game-card:hover {
+  transform: translateY(-4px);
+}
+
+.game-card h2 {
+  font-size: 1.5rem;
+    margin-bottom: 4rem;
+  color: #111827;
+    color: white;
+}
+
+.game-card p {
+  flex: 1;
+font-size: 24px;
+  color: #374151;
+  margin-bottom: 1.5rem;
+  color: white;
+}
+
+.action-btn {
+  padding: 0.8rem 1.5rem;
+  background: linear-gradient(45deg, #ff357a, #fff172);
+  color: white;
+  border: none;
+  border-radius: 10px;
+    font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-bottom: 12px;
+}
+
+.action-btn:hover {
+  background-color: #059669;
+}
+
+.player-input{
+margin: 16px;
+    padding: 6px;
+}
+
+.start-game-btn,
+.cancel-btn{
+  padding: 10px;
+  background: linear-gradient(45deg, #ff357a, #fff172);
+  border: none;
+  border-radius: 10px;
+}
+
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.user-icon {
+  color: white !important;
+}
+
+.dropdown-toggle {
+  background-color: transparent;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 0.4rem 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.dropdown-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #facc15; /* golden-yellow hover color */
+  border-color: #facc15;
+}
+
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%; /* place it right below the toggle */
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  border: 1px solid #444;
+  border-radius: 5px;
+  z-index: 100;
+  padding: 0.5rem 0;
+  min-width: 140px; /* optional: to align better with word length */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+
+.dropdown-item {
+  display: block;
+  background: none;
+  border: none;
+  padding: 0.5rem 2rem;
+  color: #fff;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+}
+
+.dropdown-item:hover {
+  background-color: #444;
+}

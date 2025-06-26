@@ -1,0 +1,37 @@
+1-• Major module: Use a framework to build the backend.
+In this major module, you are required to use a specific web framework for backend
+development: Fastify with Node.js.(done)
+
+2-Major module: Implement Two-Factor Authentication (2FA) and JWT.
+The goal of this major module is to enhance security and user authentication
+by introducing Two-Factor Authentication (2FA) and utilizing JSON Web Tokens
+(JWT). Key features and objectives include:
+◦ Implement Two-Factor Authentication (2FA) as an additional layer of security
+for user accounts, requiring users to provide a secondary verification method,
+such as a one-time code, in addition to their password.(done)
+◦ Utilize JSON Web Tokens (JWT) as a secure method for authentication and
+authorization, ensuring that user sessions and access to resources are managed
+securely.(done)
+◦ Provide a user-friendly setup process for enabling 2FA, with options for SMS
+codes, authenticator apps, or email-based verification.(required)
+◦ Ensure that JWT tokens are issued and validated securely to prevent unauthorized
+access to user accounts and sensitive data.(done)
+
+3-• Minor module: Use a database for the backend -and more.
+The designated database for all DB instances in your project is SQLite This choice
+ensure data consistency and compatibility across all project components and may
+be a prerequisite for other modules, such as the backend Framework module.(done)
+
+4-• Major module: Standard user management, authentication and users across tournaments.
+◦ Users can securely subscribe to the website.(done)
+◦ Registered users can securely log in.(done)
+◦ Users can select a unique display name to participate in tournaments.(done)
+◦ Users can update their information.(required)
+◦ Users can upload an avatar, with a default option if none is provided.(required)
+◦ Users can add others as friends and view their online status.(rewuired)
+◦ User profiles display stats, such as wins and losses.(required);
+◦ Each user has a Match History including 1v1 games, dates, and relevant
+details, accessible to logged-in users.(required);
+
+
+ngrok http https://localhost:3000
