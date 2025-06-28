@@ -628,3 +628,74 @@
   color: #ff4c4c;
   font-weight: bold;
 }
+
+
+/* Responsive adjustments for Profile Page */
+@media (max-width: 768px) {
+  .profile-container {
+    padding: 20px;
+  }
+
+  .profile-title {
+    font-size: 1.8em;
+  }
+
+  .avatar-img {
+    width: 100px;
+    height: 100px;
+  }
+
+  .info-section input,
+  .add-friend-section input[type="text"],
+  #searchBtn {
+    width: 100%;
+    margin: 8px 0;
+  }
+
+  .add-friend-section input[type="text"] {
+    margin-right: 0;
+  }
+
+  .friend-section,
+  .add-friend-section,
+  .pending-section,
+  .stats-section,
+  .match-history-section {
+    padding: 15px;
+  }
+
+  .twofa-section {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-title {
+    font-size: 1.5em;
+  }
+
+  .avatar-img {
+    width: 80px;
+    height: 80px;
+  }
+
+  .info-section input {
+    font-size: 14px;
+  }
+
+  .add-friend-section input[type="text"],
+  #searchBtn {
+    font-size: 14px;
+    padding: 12px;
+  }
+
+  .match-history-section h3,
+  .stats-section h3 {
+    font-size: 1.3rem;
+  }
+
+  #matchHistoryList li {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

@@ -1,4 +1,4 @@
-/* Tournament Wrapper */
+/* ===== Base Wrapper ===== */
 .tournament-wrapper {
   position: fixed;
   top: 0;
@@ -9,12 +9,12 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: hidden;
   padding: 0 20px;
+  overflow-y: auto;
+  box-sizing: border-box;
 }
 
-
-/* Main content box */
+/* ===== Container ===== */
 .tournament-container {
   width: 100%;
   max-width: 500px;
@@ -22,10 +22,10 @@
   padding: 30px;
   border-radius: 20px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  box-sizing: border-box;
 }
 
-
-/* Headings */
+/* ===== Headings ===== */
 .tournament-container h2,
 .tournament-container h3 {
   text-align: center;
@@ -33,7 +33,7 @@
   margin-bottom: 20px;
 }
 
-/* Dropdown and inputs */
+/* ===== Inputs ===== */
 .tournament-container .player-input {
   width: 95%;
   padding: 10px;
@@ -44,11 +44,10 @@
   background-color: #f2f2f2;
 }
 
-/* Scrollable player alias form */
+/* ===== Scrollable Alias Form ===== */
 .tournament-container #aliasFormWrapper {
   max-height: 300px;
   overflow-y: auto;
-  overflow-x: hidden;
 }
 
 .tournament-container #aliasFormWrapper::-webkit-scrollbar {
@@ -62,7 +61,7 @@
   background-color: #555;
 }
 
-/* Buttons */
+/* ===== Action Buttons ===== */
 .tournament-container .action-btn {
   background-color: #007bff;
   color: white;
@@ -80,12 +79,15 @@
   background-color: #0056b3;
 }
 
-/* Match display */
+/* ===== Match Display ===== */
 .tournament-match-box {
-  margin-top: 25px;
+  width: 100%;
+  max-width: 600px;
+  margin: 25px auto 0;
   background: rgba(255, 255, 255, 0.08);
   padding: 20px;
   border-radius: 15px;
+  box-sizing: border-box;
 }
 
 .tournament-match-box h3 {
@@ -98,33 +100,76 @@
   margin-bottom: 10px;
 }
 
-/* Winner section */
+/* ===== Winner Section ===== */
 .tournament-match-box h2 {
   text-align: center;
   margin-top: 20px;
   padding: 15px;
   background-color: black;
-  color: black;
+  color: gold;
   border-radius: 10px;
 }
 
-/* Force buttons to stack vertically */
+/* ===== Force Buttons Vertical ===== */
 .tournament-container .action-btn,
 .tournament-match-box .action-btn {
   display: block;
   width: 95%;
-  margin: 10px 16px; /* vertical spacing */
+  margin: 10px auto;
 }
 
-/* Expand match display area */
-.tournament-match-box {
-  width: 40vw;
-  max-width: 1000px;
-  height: auto;
-  background: rgba(255, 255, 255, 0.08);
-  padding: 30px;
-  border-radius: 15px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
-  max-height: none;
-  overflow: visible;
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .tournament-container {
+    padding: 20px;
+  }
+
+  .tournament-match-box {
+    width: 90%;
+    padding: 20px;
+  }
+
+  .tournament-container .player-input {
+    font-size: 15px;
+  }
+
+  .tournament-container .action-btn,
+  .tournament-match-box .action-btn {
+    font-size: 15px;
+    padding: 10px;
+  }
+
+  .tournament-container h2,
+  .tournament-container h3,
+  .tournament-match-box h2 {
+    font-size: 1.4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .tournament-container {
+    padding: 15px;
+  }
+
+  .tournament-container h2,
+  .tournament-container h3,
+  .tournament-match-box h2 {
+    font-size: 1.2rem;
+  }
+
+  .tournament-container .player-input {
+    font-size: 14px;
+  }
+
+  .tournament-container .action-btn,
+  .tournament-match-box .action-btn {
+    width: 100%;
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .tournament-match-box {
+    width: 100%;
+    padding: 15px;
+  }
 }
