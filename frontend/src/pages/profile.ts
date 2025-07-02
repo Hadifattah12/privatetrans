@@ -1,6 +1,7 @@
 // profile.ts
 
 import '../styles/profile.css';
+import { resolveAvatar } from '../utils/resolveAvatar';   // NEW
 
 export async function renderProfile(): Promise<HTMLElement> {
   const userData = localStorage.getItem('user');
@@ -16,8 +17,13 @@ export async function renderProfile(): Promise<HTMLElement> {
       <h1 class="profile-title">👤 My Profile</h1>
 
       <div class="avatar-section">
-        <img id="avatarPreview" src="${user?.avatar ? `https://localhost:3000${user.avatar}` : '../photo/img_avatar.png'}" alt="Avatar" class="avatar-img">
-        <input type="file" id="avatarInput" accept="image/*" />
+        <img
+    id="avatarPreview"
+    src="${resolveAvatar(user?.avatar)}"
+    alt="Avatar"
+    class="avatar-img"
+  />
+  <input type="file" id="avatarInput" accept="image/*" />
       </div>
 
       <div class="info-section">
@@ -158,7 +164,7 @@ else {
       friends.forEach((friend: any) => {
         const li = document.createElement('li');
         li.innerHTML = `
-          <img src="https://localhost:3000${friend.avatar}" class="avatar-mini">
+          <img src="${resolveAvatar(friend.avatar)}" class="avatar-mini">
           <span class="friend-name">${friend.name}</span>
           <span class="online-indicator">${friend.online ? '🟢' : '🔘'}</span>
           <button class="remove-friend-btn" data-id="${friend.id}">❌ Remove</button>`;
@@ -261,7 +267,7 @@ async function fetchAndSet2FAStatus() {
         }
 
         li.innerHTML = `
-          <img src="https://localhost:3000${user.avatar}" class="avatar-mini">
+          <img src="${resolveAvatar(user.avatar)}" class="avatar-mini">
           <span class="friend-name">${user.name}</span>
           <span class="friendship-status">${statusText}</span>
           ${buttonHtml}`;
@@ -315,7 +321,7 @@ async function fetchAndSet2FAStatus() {
       requests.forEach((req: any) => {
         const li = document.createElement('li');
         li.innerHTML = `
-          <img src="https://localhost:3000${req.avatar}" class="avatar-mini">
+          <img src="${resolveAvatar(req.avatar)}" class="avatar-mini">
           <span class="friend-name">${req.name}</span>
           <span class="request-text">wants to be friends</span>
           <button class="approve-btn" data-id="${req.id}">✅</button>

@@ -80,7 +80,7 @@ const googleCallback = async (req, reply) => {
           name      : username,
           email     : payload.email,
           google_id : payload.sub,
-          avatar    : payload.picture || '/uploads/default-avatar.png'
+          avatar    : payload.picture || '/uploads/default_avatar.png'
         });
       }
     }
