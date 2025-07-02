@@ -1,162 +1,153 @@
-// Updated models/user.js
-const db = require('../db/database');
-const bcrypt = require('bcryptjs');
+// models/user.js
+const util    = require('util');
+const crypto  = require('crypto');
+const bcrypt  = require('bcryptjs');
+const db      = require('../db/database');
 
+const SALT_ROUNDS = 8;
+
+/* ------------------------------------------------------------------------- */
+/* Promisified helpers so we can write async/await without boilerplate       */
+/* ------------------------------------------------------------------------- */
+const dbGet  = util.promisify(db.get.bind(db));
+const dbAll  = util.promisify(db.all.bind(db));
+const dbRunP = (sql, params = []) =>
+  new Promise((resolve, reject) =>
+    db.run(sql, params, function cb(err) {
+      if (err) return reject(err);
+      resolve(this);               // so `this.lastID` is available
+    }));
+
+/* ------------------------------------------------------------------------- */
+/* User model                                                                */
+/* ------------------------------------------------------------------------- */
 class User {
-static create({ name, email, password, is_verified = 0, verification_token = null, avatar = '/uploads/default-avatar.png' }) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const hashedPassword = await bcrypt.hash(password, 8);
-      const sql = `INSERT INTO users (name, email, password, is_verified, verification_token, avatar) VALUES (?, ?, ?, ?, ?, ?)`;
-      db.run(sql, [name, email, hashedPassword, is_verified, verification_token, avatar], function (err) {
-        if (err) return reject(err);
-        resolve({ id: this.lastID, name, email, avatar });
-      });
-    } catch (err) {
-      reject(err);
-    }
-  });
+  /* ------------------------------ creation ------------------------------ */
+
+  static async create({
+  name,
+  email,
+  password,
+  avatar            = '/uploads/default-avatar.png',
+  is_verified       = 0,
+  verification_token = null
+}) {
+  const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+
+  const sql = `
+    INSERT INTO users
+      (name, email, password, avatar, is_verified, verification_token)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `;
+
+  const { lastID } = await dbRunP(sql, [
+    name.trim(),
+    email.trim(),
+    hashedPassword,
+    avatar,
+    is_verified,
+    verification_token
+  ]);
+
+  return { id: lastID, name, email, avatar, is_verified };
 }
 
 
-  static findByEmail(email) {
-    return new Promise((resolve, reject) => {
-      db.get(`SELECT * FROM users WHERE email = ?`, [email], (err, row) => {
-        if (err) return reject(err);
-        resolve(row);
-      });
-    });
+  static async createGoogleUser({ name, email, google_id, avatar }) {
+    const dummyPassword = crypto.randomBytes(32).toString('hex');
+    const hashedPassword = await bcrypt.hash(dummyPassword, SALT_ROUNDS);
+
+    const sql = `
+      INSERT INTO users (name, email, password, google_id, avatar, is_verified)
+      VALUES (?, ?, ?, ?, ?, 1)
+    `;
+    const { lastID } = await dbRunP(sql, [name, email, hashedPassword, google_id, avatar]);
+
+    return {
+      id: lastID,
+      name,
+      email,
+      google_id,
+      avatar,
+      is_verified: 1,
+      is2FAEnabled: 0
+    };
   }
 
-    static findByName(name) {
-    return new Promise((resolve, reject) => {
-      db.get(`SELECT * FROM users WHERE name = ?`, [name], (err, row) => {
-        if (err) return reject(err);
-        resolve(row);
-      });
-    });
-  }
-  static findById(id) {
-    return new Promise((resolve, reject) => {
-      db.get(`SELECT * FROM users WHERE id = ?`, [id], (err, row) => {
-        if (err) return reject(err);
-        resolve(row);
-      });
-    });
+  /* ------------------------------ look-ups ------------------------------ */
+
+  static findById(id)             { return dbGet(`SELECT * FROM users WHERE id = ?`, [id]); }
+  static findByGoogleId(gId)      { return dbGet(`SELECT * FROM users WHERE google_id = ?`, [gId]); }
+
+  // case-insensitive search helpers
+  static findByEmail(email)       { return dbGet(`SELECT * FROM users WHERE LOWER(email) = LOWER(?)`, [email]); }
+  static findByName(name)         { return dbGet(`SELECT * FROM users WHERE LOWER(name)  = LOWER(?)`, [name]); }
+
+  static findByVerificationToken(tkn) {
+    return dbGet(`SELECT * FROM users WHERE verification_token = ?`, [tkn]);
   }
 
   static async getAllUsers() {
-    return new Promise((resolve, reject) => {
-      db.all(`SELECT id, name, email, created_at FROM users`, [], (err, rows) => {
-        if (err) return reject(err);
-        resolve(rows);
-      });
-    });
+    return dbAll(`SELECT id, name, email, created_at FROM users`);
   }
 
-  // Find user by verification token
-  static findByVerificationToken(token) {
-    return new Promise((resolve, reject) => {
-      db.get(`SELECT * FROM users WHERE verification_token = ?`, [token], (err, row) => {
-        if (err) return reject(err);
-        resolve(row);
-      });
-    });
-  }
+  /* ------------------------------ updates ------------------------------ */
 
-  // Mark user as verified and remove the token
   static verifyEmail(id) {
-    return new Promise((resolve, reject) => {
-      const sql = `UPDATE users SET is_verified = 1, verification_token = NULL WHERE id = ?`;
-      db.run(sql, [id], function (err) {
-        if (err) return reject(err);
-        resolve(true);
-      });
-    });
+    return dbRunP(`UPDATE users SET is_verified = 1, verification_token = NULL WHERE id = ?`, [id]);
   }
 
-  // Store 2FA code for user
   static store2FACode(id, code, expiry) {
-    return new Promise((resolve, reject) => {
-      const sql = `UPDATE users SET twofa_code = ?, twofa_expiry = ? WHERE id = ?`;
-      db.run(sql, [code, expiry.toISOString(), id], function (err) {
-        if (err) return reject(err);
-        resolve(true);
-      });
-    });
+    return dbRunP(
+      `UPDATE users SET twofa_code = ?, twofa_expiry = ? WHERE id = ?`,
+      [code, expiry.toISOString(), id]
+    );
   }
 
-  // Verify 2FA code
-  static verify2FACode(id, code) {
-    return new Promise((resolve, reject) => {
-      const sql = `SELECT twofa_code, twofa_expiry FROM users WHERE id = ?`;
-      db.get(sql, [id], (err, row) => {
-        if (err) return reject(err);
-        
-        if (!row || !row.twofa_code || !row.twofa_expiry) {
-          return resolve(false);
-        }
-
-        const currentTime = new Date();
-        const expiryTime = new Date(row.twofa_expiry);
-
-        // Check if code matches and hasn't expired
-        if (row.twofa_code === code && currentTime <= expiryTime) {
-          return resolve(true);
-        }
-        resolve(false);
-      });
-    });
-  }
-
-  // Clear 2FA code after successful verification
   static clear2FACode(id) {
-    return new Promise((resolve, reject) => {
-      const sql = `UPDATE users SET twofa_code = NULL, twofa_expiry = NULL WHERE id = ?`;
-      db.run(sql, [id], function (err) {
-        if (err) return reject(err);
-        resolve(true);
-      });
+    return dbRunP(`UPDATE users SET twofa_code = NULL, twofa_expiry = NULL WHERE id = ?`, [id]);
+  }
+
+  static verify2FACode(id, code) {
+    return dbGet(
+      `SELECT twofa_code, twofa_expiry FROM users WHERE id = ?`,
+      [id]
+    ).then(row => {
+      if (!row || !row.twofa_code || !row.twofa_expiry) return false;
+      return row.twofa_code === code && new Date() <= new Date(row.twofa_expiry);
     });
   }
-static update2FAStatus(id, status) {
-  return new Promise((resolve, reject) => {
-    const sql = `UPDATE users SET is2FAEnabled = ? WHERE id = ?`;
-    db.run(sql, [status, id], function (err) {
-      if (err) return reject(err);
-      resolve(true);
-    });
-  });
-}
+
+  static update2FAStatus(id, status) {
+    return dbRunP(`UPDATE users SET is2FAEnabled = ? WHERE id = ?`, [status, id]);
+  }
+
+  static updateGoogleId(id, googleId) {
+    return dbRunP(`UPDATE users SET google_id = ? WHERE id = ?`, [googleId, id]);
+  }
+
+  /* --------------------------- email change flow --------------------------- */
+
   static setPendingEmail(id, newEmail, token) {
-  return new Promise((resolve, reject) => {
-    const sql = `UPDATE users SET pending_email = ?, email_update_token = ? WHERE id = ?`;
-    db.run(sql, [newEmail, token, id], function (err) {
-      if (err) return reject(err);
-      resolve(true);
-    });
-  });
+    return dbRunP(
+      `UPDATE users SET pending_email = ?, email_update_token = ? WHERE id = ?`,
+      [newEmail, token, id]
+    );
+  }
+
+  static async confirmNewEmail(token) {
+    const row = await dbGet(
+      `SELECT id, pending_email FROM users WHERE email_update_token = ?`,
+      [token]
+    );
+    if (!row) throw new Error('Invalid or expired token');
+
+    await dbRunP(
+      `UPDATE users SET email = ?, pending_email = NULL, email_update_token = NULL WHERE id = ?`,
+      [row.pending_email, row.id]
+    );
+    return true;
+  }
 }
-
-static confirmNewEmail(token) {
-  return new Promise((resolve, reject) => {
-    const getSql = `SELECT id, pending_email FROM users WHERE email_update_token = ?`;
-    db.get(getSql, [token], (err, row) => {
-      console.log("Token found for email update:", row);
-
-      if (err || !row) return reject("Invalid or expired token");
-
-      const updateSql = `UPDATE users SET email = ?, pending_email = NULL, email_update_token = NULL WHERE id = ?`;
-      db.run(updateSql, [row.pending_email, row.id], function (err2) {
-        if (err2) return reject(err2);
-        resolve(true);
-      });
-    });
-  });
-}
-
-}
-
-
 
 module.exports = User;

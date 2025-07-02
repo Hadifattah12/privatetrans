@@ -7,6 +7,14 @@ import { renderSignup } from './pages/signup';
 import { renderProfile } from './pages/profile'; // import new page
 import { renderTournament } from './pages/tournament';
 import { renderPongAI } from './pages/pong-ai';
+import { handleOAuthCallback } from './pages/oauth-callback';
+
+// Early check: if we’re on the special hash, handle it and bail
+if (window.location.hash.startsWith('#/oauth-callback')) {
+  handleOAuthCallback();
+  // the function will redirect to #/home; no further routing needed now
+}
+
 
 interface Route {
   path: string;
